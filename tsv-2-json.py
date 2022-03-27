@@ -17,7 +17,10 @@ def tsv2json(input_file,output_file):
 			# Convert each row into dictionary with keys as titles
 			if key in ["primaryProfession", "knownForTitles", "genres"]:
 				inner_array = [f.strip() for f in data.split(",")]
-				d[key] = inner_array
+				if inner_array not in [["\\N"],[""]]:
+					d[key] = inner_array
+				else:
+					d[key] = None
 			elif key == "characters":
 				inner_array = [s.strip()[1:len(s)-2] for s in data[1:len(data)-2].split(",")]
 				if inner_array != [""]:
@@ -40,8 +43,7 @@ def tsv2json(input_file,output_file):
 
 
 if __name__ == "__main__":
-	# Test
-	input_filename = 'title.principals.tsv'
-	output_filename = 'title.principals.json'
-	tsv2json(input_filename,output_filename)
-
+	# Create the files
+	filenames = ["name.basics", "title.basics","title.principals","title.ratings"]
+	for filename in filenames:
+		tsv2json(filename+".tsv",filename+".json")
