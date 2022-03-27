@@ -1,4 +1,5 @@
 import json
+import time
 
 
 def tsv2json(input_file,output_file):
@@ -42,8 +43,18 @@ def tsv2json(input_file,output_file):
 		output_file.write(json.dumps(arr, indent=4))
 
 
-if __name__ == "__main__":
+def main():
 	# Create the files
 	filenames = ["name.basics", "title.basics","title.principals","title.ratings"]
+	start_time = time.time()
 	for filename in filenames:
+		t1 = time.time()
 		tsv2json(filename+".tsv",filename+".json")
+		t2 = time.time()
+		print("Converted " + filename + ".tsv in " + "%.2f seconds" % (t2-t1))
+	end_time = time.time()
+	print("Converted everything in " + "%.2f seconds" % (end_time-start_time))
+
+
+if __name__ == "__main__":
+	main()
