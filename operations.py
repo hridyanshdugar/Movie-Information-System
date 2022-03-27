@@ -54,6 +54,8 @@ def search_cast():
                     for character in jc["characters"]:
                         print(character)
                 print("-"*60)
+        print("*"*60)
+
 
 def add_movie():
     pass
