@@ -41,17 +41,6 @@ def search_titles():
         print(doc)
 
 
-
-
-
-
-
-    docs = collection_title_b.aggregate(query)
-    for d in docs:
-        print(d)
-
-
-
 def search_genres():
     # Collection references
     collection_title_b = db["title_basics"]
