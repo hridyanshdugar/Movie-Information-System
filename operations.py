@@ -1,3 +1,5 @@
+import time
+
 from pymongo import MongoClient
 
 port_number = int(input("Enter the port number: "))
@@ -44,7 +46,9 @@ def search_genres():
         },{
             "$sort": {"averageRating":-1}
         }]
-    collection_title_b.create_index([("numVotes",1),("genres",1),("tconst",1)])
+    collection_title_b.drop_indexes()
+    collection_title_r.drop_indexes()
+    collection_title_b.create_index([("genres",1),("tconst",1)])
     collection_title_r.create_index([("tconst",1)])
 
     print("Querying...")
