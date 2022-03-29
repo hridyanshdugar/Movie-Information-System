@@ -1,6 +1,7 @@
 import time
 
 from pymongo import MongoClient
+from copy import deepcopy
 
 port_number = int(input("Enter the port number: "))
 client = MongoClient("mongodb://localhost:" + str(port_number) + "/")
@@ -19,21 +20,23 @@ def search_titles():
     keywords = input("Enter the keywords seperated by spaces: ").strip()
     keyword_list = keywords.split()
     year = None
-    match_list = []
+    match_list1 = []
     for keyword in keyword_list:
         if keyword.isdecimal():
             year = int(keyword)
         else:
-            match_list.append({
+            match_list1.append({
                 "primaryTitle":{"$regex":keyword,"$options":"i"}
             })
 
+    match_list2 = deepcopy(match_list1)
     if year is not None:
-        match_list.append({"startYear": year})
+        match_list1.append({"startYear": year})
+        match_list2.append({"primaryTitle":{"$regex":str(year),"$options":"i"}})
 
     query = [{
         "$match":{
-            "$and":match_list
+            "$or":[{"$and":match_list1},{"$and":match_list2}]
         }
     }]
 
