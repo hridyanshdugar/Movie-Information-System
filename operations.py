@@ -44,13 +44,13 @@ def search_genres():
                 }
             }
         },{
-            "$sort": {"numVotes":-1}
+            "$sort": {"averageRating":-1}
         }]
     collection_title_b.create_index([("numVotes",1),("genres",1),("tconst",1)])
     collection_title_r.create_index([("tconst",1)])
-    print(11)
     docs = collection_title_b.aggregate(query)
 
+    
     for doc in docs:
         print(doc)
 
