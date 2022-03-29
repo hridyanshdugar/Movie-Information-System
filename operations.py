@@ -11,8 +11,6 @@ def search_titles():
 
 def search_genres():
     # Collection references
-    collection_name = db["name_basics"]
-    collection_title_p = db["title_principals"]
     collection_title_b = db["title_basics"]
     collection_title_r = db["title_ratings"]
 
@@ -50,10 +48,19 @@ def search_genres():
     collection_title_r.create_index([("numVotes",1),("tconst",1)])
 
     print("Querying...")
-    docs = collection_title_b.aggregate(query)
-
-    for doc in docs:
-        print(doc)
+    cur = collection_title_b.aggregate(query)
+    print("Queried.")
+    docs = list(cur)
+    # Display the data
+    if len(docs) != 0:
+        print("-"*96)
+        print("| {:<66s} | {:>10s} | {:>10s} |".format("Title","Rating","Votes"))
+        print("-"*96)
+        for doc in docs:
+            print("| {:<66s} | {:>10.1f} | {:>10d} |".format(doc["primaryTitle"],doc["averageRating"],doc["numVotes"]))
+        print("-"*96)
+    else:
+        print("No Results found")
 
 
 
@@ -67,45 +74,49 @@ def search_cast():
     collection_title_p = db["title_principals"]
     collection_title_b = db["title_basics"]
     query = {"primaryName": {"$regex": cast_name, "$options": "i"}}
-    docs = collection_name.find(query)
-    for doc in docs:
-        print("*" * 60)
-        print("Name: " + doc["primaryName"])
-        print("nconst: " + doc["nconst"])
-        professions = doc["primaryProfession"]
-        print("Professions: ")
-        if professions is not None:
-            for profession in professions:
-                print(profession)
-        else:
-            print(professions)
+    cur = collection_name.find(query)
+    docs = list(cur)
+    if len(docs) != 0:
+        for doc in docs:
+            print("*" * 60)
+            print("Name: " + doc["primaryName"])
+            print("nconst: " + doc["nconst"])
+            professions = doc["primaryProfession"]
+            print("Professions: ")
+            if professions is not None:
+                for profession in professions:
+                    print(profession)
+            else:
+                print(professions)
 
-        # Find the jobs and other details
-        query = {"nconst": doc["nconst"]}
-        job_char = collection_title_p.find(query, {"tconst": 1, "job": 1, "characters": 1, "_id": 0})
-        print("-" * 60)
-
-        for jc in job_char:
-            query = {"tconst": jc["tconst"]}
-            titles = collection_title_b.find(query, {"primaryTitle": 1, "_id": 0})
-            printed_flag = False
-            for title in titles:
-                if jc["job"] is not None or jc["characters"] is not None:
-                    print("Primary Title: " + title["primaryTitle"])
-                    print("Job: " + str(jc["job"]))
-                    print("Characters: ")
-                    if jc["characters"] is not None:
-                        for character in jc["characters"]:
-                            print(character)
-                    else:
-                        print(jc["characters"])
-                    printed_flag = True
-
-            if not printed_flag:
-                print("No Movie Appearances")
-
+            # Find the jobs and other details
+            query = {"nconst": doc["nconst"]}
+            job_char = collection_title_p.find(query, {"tconst": 1, "job": 1, "characters": 1, "_id": 0})
             print("-" * 60)
-        print("*" * 60)
+
+            for jc in job_char:
+                query = {"tconst": jc["tconst"]}
+                titles = collection_title_b.find(query, {"primaryTitle": 1, "_id": 0})
+                printed_flag = False
+                for title in titles:
+                    if jc["job"] is not None or jc["characters"] is not None:
+                        print("Primary Title: " + title["primaryTitle"])
+                        print("Job: " + str(jc["job"]))
+                        print("Characters: ")
+                        if jc["characters"] is not None:
+                            for character in jc["characters"]:
+                                print(character)
+                        else:
+                            print(jc["characters"])
+                        printed_flag = True
+
+                if not printed_flag:
+                    print("No Movie Appearances")
+
+                print("-" * 60)
+            print("*" * 60)
+    else:
+        print("No results found.")
 
 
 def add_movie():
@@ -165,5 +176,5 @@ def main():
         else:
             print("Invalid Choice")
 
-# main()
-search_genres()
+main()
+# search_genres()
