@@ -41,8 +41,12 @@ def search_titles():
     }]
 
     cur = collection_title_b.aggregate(query)
-    for doc in cur:
-        print(doc)
+    docs = list(cur)
+    if len(docs) != 0:
+        for doc in docs:
+            print(doc)
+    else:
+        print("No matches found! Try again")
 
 
 def search_genres():
