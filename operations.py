@@ -28,6 +28,7 @@ def search_cast():
     for doc in docs:
         print("*"*60)
         print("Name: "+ doc["primaryName"])
+        print("nconst: "+ doc["nconst"])
         professions = doc["primaryProfession"]
         print("Professions: ")
         if professions is not None:
@@ -45,15 +46,23 @@ def search_cast():
         for jc in job_char:
             query = {"tconst":jc["tconst"]}
             titles = collection_title_b.find(query,{"primaryTitle":1,"_id":0})
+            printed_flag = False
             for title in titles:
-                print("Primary Title: " + title["primaryTitle"])
-                if jc["job"] is not None:
-                    print("Job: " + jc["job"])
-                if jc["characters"] is not None:
+                if jc["job"] is not None or jc["characters"] is not None:
+                    print("Primary Title: " + title["primaryTitle"])
+                    print("Job: " + str(jc["job"]))
                     print("Characters: ")
-                    for character in jc["characters"]:
-                        print(character)
-                print("-"*60)
+                    if jc["characters"] is not None:
+                        for character in jc["characters"]:
+                            print(character)
+                    else:
+                        print(jc["characters"])
+                    printed_flag = True
+
+            if not printed_flag:
+                print("No Movie Appearances")
+
+            print("-"*60)
         print("*"*60)
 
 
@@ -63,5 +72,6 @@ def add_movie():
 
 def add_cast():
     pass
+
 
 search_cast()

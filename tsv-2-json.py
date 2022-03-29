@@ -4,7 +4,7 @@ import time
 
 def tsv2json(input_file,output_file):
 	arr = []
-	file = open(input_file, 'r', encoding= "utf-8")
+	file = open(input_file, 'r', encoding="utf-8")
 	a = file.readline()
 
 	# The first line consist of headings of the record
@@ -23,7 +23,7 @@ def tsv2json(input_file,output_file):
 				else:
 					d[key] = None
 			elif key == "characters":
-				inner_array = [s.strip()[1:len(s)-2] for s in data[1:len(data)-2].split(",")]
+				inner_array = [s.strip()[1:len(s)-1] for s in data[1:len(data)-2].split(",")]
 				if inner_array != [""]:
 					d[key] = inner_array
 				else:
