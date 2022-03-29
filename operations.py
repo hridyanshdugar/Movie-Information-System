@@ -74,4 +74,53 @@ def add_cast():
     pass
 
 
-search_cast()
+def display_menu():
+    print("*"*60)
+    print("* {:^56s} *".format("Operations"))
+    print("*"*60)
+    print("* {:<56s} *".format("1. Search for titles"))
+    print("* {:<56s} *".format("2. Search for Genres"))
+    print("* {:<56s} *".format("3. Search for Cast Members"))
+    print("* {:<56s} *".format("4. Add a Movie"))
+    print("* {:<56s} *".format("5. Add a Cast Member"))
+    print("* {:<56s} *".format("6. Exit"))
+    print("*"*60)
+
+def main():
+    # Display menu
+    choice = None
+    while choice != 6:
+        display_menu()
+        choice = int(input("Enter your choice: "))
+        if choice == 1:
+            print("*"*60)
+            print("*{:^58s}*".format("Search for titles"))
+            print("*"*60)
+            search_titles()
+        elif choice == 2:
+            print("*"*60)
+            print("*{:^58s}*".format("Search for Genres"))
+            print("*"*60)
+            search_genres()
+        elif choice == 3:
+            print("*"*60)
+            print("*{:^58s}*".format("Search for Cast Members"))
+            print("*"*60)
+            search_cast()
+        elif choice == 4:
+            print("*"*60)
+            print("*{:^58s}*".format("Add a Movie"))
+            print("*"*60)
+            add_movie()
+        elif choice == 5:
+            print("*"*60)
+            print("*{:^58s}*".format("Add a Cast Member"))
+            print("*"*60)
+            add_cast()
+        elif choice == 6:
+            break
+        else:
+            print("Invalid Choice")
+
+
+main()
