@@ -15,7 +15,7 @@ def search_titles():
     collection_title_r = db["title_ratings"]
     collection_title_p = db["title_ratings"]
 
-    collection_title_b.create_index([("startYear",1)])
+    collection_title_b.create_index([("startYear", 1)])
     # Take input
     keywords = input("Enter the keywords seperated by spaces: ").strip()
     keyword_list = keywords.split()
@@ -26,25 +26,35 @@ def search_titles():
             year = int(keyword)
         else:
             match_list1.append({
-                "primaryTitle":{"$regex":keyword,"$options":"i"}
+                "primaryTitle": {"$regex": keyword, "$options": "i"}
             })
 
     match_list2 = deepcopy(match_list1)
     if year is not None:
         match_list1.append({"startYear": year})
-        match_list2.append({"primaryTitle":{"$regex":str(year),"$options":"i"}})
+        match_list2.append({"primaryTitle": {"$regex": str(year), "$options": "i"}})
 
     query = [{
-        "$match":{
-            "$or":[{"$and":match_list1},{"$and":match_list2}]
+        "$match": {
+            "$or": [{"$and": match_list1}, {"$and": match_list2}]
         }
     }]
 
     cur = collection_title_b.aggregate(query)
     docs = list(cur)
     if len(docs) != 0:
-        for doc in docs:
-            print(doc)
+        print("-" * 243)
+        print("| {:<6s} | {:<20s} | {:<9s} | {:<50s} | {:<50s} | {:<7} | {:<9s} | {:<7s} | {:<14s} | {:<40s} |"
+              .format("Option", "tconst", "titleType", "primaryTitle", "originalTitle", "isAdult", "startYear",
+                      "endYear"
+                      , "runtimeMinutes", "genres"))
+        print("-" * 243)
+        for i in range(len(docs)):
+            print("| {:<6d} | {:<20s} | {:<9s} | {:<50s} | {:<50s} | {:<7s} | {:<9s} | {:<7s} | {:<14s} | {:<40s} |"
+                  .format(i + 1, docs[i]["tconst"], docs[i]["titleType"], docs[i]["primaryTitle"],
+                          docs[i]["originalTitle"], str(docs[i]["isAdult"]), str(docs[i]["startYear"]),
+                          str(docs[i]["endYear"]), str(docs[i]["runtimeMinutes"]), str(docs[i]["genres"])))
+        print("-" * 243)
     else:
         print("No matches found! Try again")
 
@@ -58,11 +68,11 @@ def search_genres():
     min_count = int(input("Enter the minimum vote count: "))
 
     query = [{
-        "$lookup":{
+        "$lookup": {
             "from": "title_ratings",
             "localField": "tconst",
             "foreignField": "tconst",
-            "as":"ratings"
+            "as": "ratings"
         }
     },
         {
@@ -70,24 +80,24 @@ def search_genres():
         },
         {
             "$project": {"ratings": 0}
-        },{
+        }, {
             "$unwind": "$genres"
-        },{
-            "$match":{
-                "numVotes":{
-                    "$gte":min_count
+        }, {
+            "$match": {
+                "numVotes": {
+                    "$gte": min_count
                 },
-                "genres":{
-                    "$regex":genre,"$options": "i"
+                "genres": {
+                    "$regex": genre, "$options": "i"
                 }
             }
-        },{
-            "$sort": {"averageRating":-1}
+        }, {
+            "$sort": {"averageRating": -1}
         }]
     collection_title_b.drop_indexes()
     collection_title_r.drop_indexes()
-    collection_title_b.create_index([("genres",1),("tconst",1)])
-    collection_title_r.create_index([("tconst",1)])
+    collection_title_b.create_index([("genres", 1), ("tconst", 1)])
+    collection_title_r.create_index([("tconst", 1)])
 
     print("Querying...")
     cur = collection_title_b.aggregate(query)
@@ -95,12 +105,13 @@ def search_genres():
     docs = list(cur)
     # Display the data
     if len(docs) != 0:
-        print("-"*96)
-        print("| {:<66s} | {:>10s} | {:>10s} |".format("Title","Rating","Votes"))
-        print("-"*96)
+        print("-" * 96)
+        print("| {:<66s} | {:>10s} | {:>10s} |".format("Title", "Rating", "Votes"))
+        print("-" * 96)
         for doc in docs:
-            print("| {:<66s} | {:>10.1f} | {:>10d} |".format(doc["primaryTitle"],doc["averageRating"],doc["numVotes"]))
-        print("-"*96)
+            print(
+                "| {:<66s} | {:>10.1f} | {:>10d} |".format(doc["primaryTitle"], doc["averageRating"], doc["numVotes"]))
+        print("-" * 96)
     else:
         print("No Results found")
 
@@ -216,6 +227,7 @@ def main():
             break
         else:
             print("Invalid Choice")
+
 
 main()
 # search_genres()
