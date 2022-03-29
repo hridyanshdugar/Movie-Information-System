@@ -1,3 +1,5 @@
+import time
+
 from pymongo import MongoClient
 
 port_number = int(input("Enter the port number: "))
@@ -22,7 +24,6 @@ def search_cast():
     collection_name = db["name_basics"]
     collection_title_p = db["title_principals"]
     collection_title_b = db["title_basics"]
-
     query = {"primaryName": {"$regex": cast_name, "$options": "i"}}
     docs = collection_name.find(query)
     for doc in docs:
