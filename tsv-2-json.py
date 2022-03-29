@@ -32,7 +32,12 @@ def tsv2json(input_file,output_file):
 				if data.strip() == "\\N":
 					d[key] = None
 				else:
-					d[key] = data.strip()
+					if key in ["numVotes","birthYear","deathYear","isAdult","startYear","endYear","runtimeMinutes","ordering"]:
+						d[key] = int(data.strip())
+					elif key in ["averageRating"]:
+						d[key] = float(data.strip())
+					else:
+						d[key] = data.strip()
 
 		# we will use strip to remove '\n'.
 		arr.append(d)

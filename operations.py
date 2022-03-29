@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 
-# port_number = int(input("Enter the port number: "))
-port_number = 27017
+port_number = int(input("Enter the port number: "))
 client = MongoClient("mongodb://localhost:" + str(port_number) + "/")
 db = client["291db"]
 
@@ -19,6 +18,42 @@ def search_genres():
 
     genre = input("Enter the genre to search: ")
     min_count = int(input("Enter the minimum vote count: "))
+
+    query = [{
+        "$lookup":{
+            "from": "title_ratings",
+            "localField": "tconst",
+            "foreignField": "tconst",
+            "as":"ratings"
+        }
+    },
+        {
+            "$replaceRoot": {"newRoot": {"$mergeObjects": [{"$arrayElemAt": ["$ratings", 0]}, "$$ROOT"]}}
+        },
+        {
+            "$project": {"ratings": 0}
+        },{
+            "$unwind": "$genres"
+        },{
+            "$match":{
+                "numVotes":{
+                    "$gte":min_count
+                },
+                "genres":{
+                    "$regex":genre,"$options": "i"
+                }
+            }
+        },{
+            "$sort": {"numVotes":-1}
+        }]
+    collection_title_b.create_index([("numVotes",1),("genres",1),("tconst",1)])
+    collection_title_r.create_index([("tconst",1)])
+    print(11)
+    docs = collection_title_b.aggregate(query)
+
+    for doc in docs:
+        print(doc)
+
 
 
 def search_cast():
@@ -130,3 +165,4 @@ def main():
             print("Invalid Choice")
 
 # main()
+search_genres()
