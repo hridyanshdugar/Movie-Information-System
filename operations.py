@@ -16,6 +16,7 @@ def search_titles():
     collection_title_p = db["title_ratings"]
 
     collection_title_b.create_index([("startYear", 1)])
+    collection_title_b.create_index([("tconst",1)])
     # Take input
     keywords = input("Enter the keywords seperated by spaces: ").strip()
     keyword_list = keywords.split()
@@ -94,9 +95,10 @@ def search_genres():
         }, {
             "$sort": {"averageRating": -1}
         }]
-    collection_title_b.drop_indexes()
-    collection_title_r.drop_indexes()
-    collection_title_b.create_index([("genres", 1), ("tconst", 1)])
+    # collection_title_b.drop_indexes()
+    # collection_title_r.drop_indexes()
+    collection_title_b.create_index([("genres", 1)])
+    collection_title_b.create_index([("tconst", 1)])
     collection_title_r.create_index([("tconst", 1)])
 
     print("Querying...")

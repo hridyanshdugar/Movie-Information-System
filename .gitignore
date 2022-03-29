@@ -129,10 +129,6 @@ dmypy.json
 .pyre/
 
 .idea
-name.basics.tsv
-title.basics.tsv
-title.principals.tsv
-title.ratings.tsv
 name.basics.json
 title.basics.json
 title.principals.json
