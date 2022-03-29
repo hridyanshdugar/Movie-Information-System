@@ -13,6 +13,7 @@ def search_titles():
     collection_title_b = db["title_basics"]
     collection_title_r = db["title_ratings"]
     collection_title_p = db["title_ratings"]
+
     collection_title_b.create_index([("startYear",1)])
     # Take input
     keywords = input("Enter the keywords seperated by spaces: ").strip()
