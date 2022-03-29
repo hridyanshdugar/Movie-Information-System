@@ -8,7 +8,48 @@ db = client["291db"]
 
 
 def search_titles():
-    pass
+    # Collection references
+    collection_names = db["name_basics"]
+    collection_title_b = db["title_basics"]
+    collection_title_r = db["title_ratings"]
+    collection_title_p = db["title_ratings"]
+    collection_title_b.create_index([("startYear",1)])
+    # Take input
+    keywords = input("Enter the keywords seperated by spaces: ").strip()
+    keyword_list = keywords.split()
+    year = None
+    match_list = []
+    for keyword in keyword_list:
+        if keyword.isdecimal():
+            year = int(keyword)
+        else:
+            match_list.append({
+                "primaryTitle":{"$regex":keyword,"$options":"i"}
+            })
+
+    if year is not None:
+        match_list.append({"startYear": year})
+
+    query = [{
+        "$match":{
+            "$and":match_list
+        }
+    }]
+
+    cur = collection_title_b.aggregate(query)
+    for doc in cur:
+        print(doc)
+
+
+
+
+
+
+
+    docs = collection_title_b.aggregate(query)
+    for d in docs:
+        print(d)
+
 
 
 def search_genres():
@@ -65,7 +106,6 @@ def search_genres():
         print("-"*96)
     else:
         print("No Results found")
-
 
 
 def search_cast():
