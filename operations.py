@@ -13,10 +13,14 @@ def search_titles():
     collection_names = db["name_basics"]
     collection_title_b = db["title_basics"]
     collection_title_r = db["title_ratings"]
-    collection_title_p = db["title_ratings"]
+    collection_title_p = db["title_principals"]
 
     collection_title_b.create_index([("startYear", 1)])
-    collection_title_b.create_index([("tconst",1)])
+    collection_title_b.create_index([("tconst", 1)])
+    collection_title_b.create_index([("nconst", 1)])
+    collection_names.create_index([("nconst",1)])
+    collection_title_p.create_index([("tconst",1)])
+    collection_title_p.create_index([("nconst",1)])
     # Take input
     keywords = input("Enter the keywords seperated by spaces: ").strip()
     keyword_list = keywords.split()
@@ -56,6 +60,43 @@ def search_titles():
                           docs[i]["originalTitle"], str(docs[i]["isAdult"]), str(docs[i]["startYear"]),
                           str(docs[i]["endYear"]), str(docs[i]["runtimeMinutes"]), str(docs[i]["genres"])))
         print("-" * 243)
+
+        title_choice = int(input("Enter the choice: "))
+
+        query = [{
+            "$lookup": {
+                "from": "title_ratings",
+                "localField": "tconst",
+                "foreignField": "tconst",
+                "as": "ratings"
+            }
+        },{
+            "$replaceRoot": {"newRoot": {"$mergeObjects": [{"$arrayElemAt": ["$ratings", 0]}, "$$ROOT"]}}
+        },{
+            "$project": {"ratings": 0}
+        },{
+            "$match":{
+                "tconst":docs[title_choice-1]["tconst"]
+            }
+        },{
+            "$lookup": {
+                "from": "name_basics",
+                "localField": "nconst",
+                "foreignField": "nconst",
+                "as": "names"
+            }
+        },{
+            "$replaceRoot": {"newRoot": {"$mergeObjects": [{"$arrayElemAt": ["$names", 0]}, "$$ROOT"]}}
+        },{
+            "$project": {"names": 0}
+        }]
+
+        # Query to find the rating and votes
+        guery_rating = {"tconst":docs[title_choice-1]["tconst"]}
+
+        cur = collection_title_p.aggregate(query)
+        for doc in cur:
+            print(doc)
     else:
         print("No matches found! Try again")
 
