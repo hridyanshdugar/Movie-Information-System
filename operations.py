@@ -94,9 +94,21 @@ def search_titles():
         cur = collection_title_p.aggregate(query)
         docs = list(cur)
 
+        # Display the characters
         if len(docs) != 0:
+            print("-"*95)
+            print("| {:<30s} | {:<15s} | {:<40s} |".format("Crew Member","Job Category","Characters played"))
+            print("-"*95)
             for doc in docs:
-                print(doc)
+                characters = ""
+                if doc["characters"] is not None:
+                    for character in doc["characters"]:
+                        characters += " ,"+character
+                    characters = characters[2:]
+                else:
+                    characters = "None"
+                print("| {:<30s} | {:<15s} | {:<40s} |".format(doc["primaryName"],doc["category"],characters))
+            print("-"*95)
         else:
             print("No Cast members found! Try Again.")
     else:
