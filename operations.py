@@ -1,5 +1,3 @@
-import time
-
 from pymongo import MongoClient
 from copy import deepcopy
 
@@ -10,17 +8,10 @@ db = client["291db"]
 
 def search_titles():
     # Collection references
-    collection_names = db["name_basics"]
     collection_title_b = db["title_basics"]
     collection_title_r = db["title_ratings"]
     collection_title_p = db["title_principals"]
 
-    collection_title_b.create_index([("startYear", 1)])
-    collection_title_b.create_index([("tconst", 1)])
-    collection_title_b.create_index([("nconst", 1)])
-    collection_names.create_index([("nconst", 1)])
-    collection_title_p.create_index([("tconst", 1)])
-    collection_title_p.create_index([("nconst", 1)])
     # Take input
     keywords = input("Enter the keywords seperated by spaces: ").strip()
     keyword_list = keywords.split()
@@ -51,8 +42,7 @@ def search_titles():
         print("-" * 243)
         print("| {:<6s} | {:<20s} | {:<9s} | {:<50s} | {:<50s} | {:<7} | {:<9s} | {:<7s} | {:<14s} | {:<40s} |"
               .format("Option", "tconst", "titleType", "primaryTitle", "originalTitle", "isAdult", "startYear",
-                      "endYear"
-                      , "runtimeMinutes", "genres"))
+                      "endYear", "runtimeMinutes", "genres"))
         print("-" * 243)
         for i in range(len(docs)):
             print("| {:<6d} | {:<20s} | {:<9s} | {:<50s} | {:<50s} | {:<7s} | {:<9s} | {:<7s} | {:<14s} | {:<40s} |"
@@ -84,9 +74,9 @@ def search_titles():
         }]
 
         # Query to find the rating and votes
-        guery_rating = {"tconst": docs[title_choice - 1]["tconst"]}
+        query_rating = {"tconst": docs[title_choice - 1]["tconst"]}
 
-        rating_doc = collection_title_r.find_one(guery_rating)
+        rating_doc = collection_title_r.find_one(query_rating)
 
         print("Rating: ", rating_doc["averageRating"])
         print("Votes : ", rating_doc["numVotes"])
@@ -118,7 +108,6 @@ def search_titles():
 def search_genres():
     # Collection references
     collection_title_b = db["title_basics"]
-    collection_title_r = db["title_ratings"]
 
     genre = input("Enter the genre to search: ")
     min_count = int(input("Enter the minimum vote count: "))
@@ -150,13 +139,6 @@ def search_genres():
         }, {
             "$sort": {"averageRating": -1}
         }]
-    # collection_title_b.drop_indexes()
-    # collection_title_r.drop_indexes()
-    collection_title_b.create_index([("genres", 1)])
-    collection_title_b.create_index([("tconst", 1)])
-    collection_title_r.create_index([("tconst", 1)])
-    collection_title_r.create_index([("numVotes", 1)])
-    collection_title_r.create_index([("averageRating", 1)])
 
     print("Querying...")
     cur = collection_title_b.aggregate(query)
