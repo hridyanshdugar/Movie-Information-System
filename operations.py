@@ -18,9 +18,9 @@ def search_titles():
     collection_title_b.create_index([("startYear", 1)])
     collection_title_b.create_index([("tconst", 1)])
     collection_title_b.create_index([("nconst", 1)])
-    collection_names.create_index([("nconst",1)])
-    collection_title_p.create_index([("tconst",1)])
-    collection_title_p.create_index([("nconst",1)])
+    collection_names.create_index([("nconst", 1)])
+    collection_title_p.create_index([("tconst", 1)])
+    collection_title_p.create_index([("nconst", 1)])
     # Take input
     keywords = input("Enter the keywords seperated by spaces: ").strip()
     keyword_list = keywords.split()
@@ -63,28 +63,28 @@ def search_titles():
 
         title_choice = int(input("Enter the choice: "))
 
-        print("Title Selected: " + str(docs[title_choice-1]["primaryTitle"]))
+        print("Title Selected: " + str(docs[title_choice - 1]["primaryTitle"]))
 
         # Query to find all the cast info
         query = [{
-            "$match":{
-                "tconst":docs[title_choice-1]["tconst"]
+            "$match": {
+                "tconst": docs[title_choice - 1]["tconst"]
             }
-        },{
+        }, {
             "$lookup": {
                 "from": "name_basics",
                 "localField": "nconst",
                 "foreignField": "nconst",
                 "as": "names"
             }
-        },{
+        }, {
             "$replaceRoot": {"newRoot": {"$mergeObjects": [{"$arrayElemAt": ["$names", 0]}, "$$ROOT"]}}
-        },{
+        }, {
             "$project": {"names": 0}
         }]
 
         # Query to find the rating and votes
-        guery_rating = {"tconst":docs[title_choice-1]["tconst"]}
+        guery_rating = {"tconst": docs[title_choice - 1]["tconst"]}
 
         rating_doc = collection_title_r.find_one(guery_rating)
 
@@ -96,19 +96,19 @@ def search_titles():
 
         # Display the characters
         if len(docs) != 0:
-            print("-"*95)
-            print("| {:<30s} | {:<15s} | {:<40s} |".format("Crew Member","Job Category","Characters played"))
-            print("-"*95)
+            print("-" * 95)
+            print("| {:<30s} | {:<15s} | {:<40s} |".format("Crew Member", "Job Category", "Characters played"))
+            print("-" * 95)
             for doc in docs:
                 characters = ""
                 if doc["characters"] is not None:
                     for character in doc["characters"]:
-                        characters += " ,"+character
+                        characters += " ," + character
                     characters = characters[2:]
                 else:
                     characters = "None"
-                print("| {:<30s} | {:<15s} | {:<40s} |".format(doc["primaryName"],doc["category"],characters))
-            print("-"*95)
+                print("| {:<30s} | {:<15s} | {:<40s} |".format(doc["primaryName"], doc["category"], characters))
+            print("-" * 95)
         else:
             print("No Cast members found! Try Again.")
     else:
@@ -155,8 +155,8 @@ def search_genres():
     collection_title_b.create_index([("genres", 1)])
     collection_title_b.create_index([("tconst", 1)])
     collection_title_r.create_index([("tconst", 1)])
-    collection_title_r.create_index([("numVotes",1)])
-    collection_title_r.create_index([("averageRating",1)])
+    collection_title_r.create_index([("numVotes", 1)])
+    collection_title_r.create_index([("averageRating", 1)])
 
     print("Querying...")
     cur = collection_title_b.aggregate(query)
@@ -231,7 +231,29 @@ def search_cast():
 
 
 def add_movie():
-    pass
+    collection = db["title_basics"]
+    unique = False
+    while not unique:
+        tconst = str(input("Enter a unique movie ID: "))
+        cur = collection.find({"tconst": tconst})
+        docs = list(cur)
+        if len(docs) == 1:
+            unique = False
+            print("Movie ID already exists! Try again.\n")
+        else:
+            unique = True
+
+        if unique:
+            title = input("Enter movie title : ")
+            start_year = int(input("Enter movie start year : "))
+            running_time = int(input("Enter movie running time  : "))
+            genres = list(input("Enter genres: ").split())
+            movie = "movie"
+            doc = {"tconst": tconst, "titleType": movie, "primaryTitle": title, "originalTitle": title, "isAdult": 0,
+                   "startYear": start_year, "endYear": None, "runtimeMinutes": running_time, "genres": genres}
+            collection.insert_one(doc)
+
+            print("Movie inserted!")
 
 
 def add_cast():
@@ -290,3 +312,4 @@ def main():
 
 main()
 # search_genres()
+# add_movie()
