@@ -334,5 +334,3 @@ def main():
 
 
 main()
-# search_genres()
-# add_movie()
