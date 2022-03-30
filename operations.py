@@ -186,11 +186,10 @@ def search_cast():
             query = {"nconst": doc["nconst"]}
             job_char = collection_title_p.find(query, {"tconst": 1, "job": 1, "characters": 1, "_id": 0})
             print("-" * 60)
-
+            printed_flag = False
             for jc in job_char:
                 query = {"tconst": jc["tconst"]}
                 titles = collection_title_b.find(query, {"primaryTitle": 1, "_id": 0})
-                printed_flag = False
                 for title in titles:
                     if jc["job"] is not None or jc["characters"] is not None:
                         print("Primary Title: " + title["primaryTitle"])
@@ -239,7 +238,49 @@ def add_movie():
 
 
 def add_cast():
-    pass
+    # Get Input
+    nconst = input("Enter Crew Member ID: ").strip()
+    tconst = input("Enter Title ID: ").strip()
+    category = input("Enter category: ").strip()
+
+    # Collection References
+    collection_names = db["name_basics"]
+    collection_title_b = db["title_basics"]
+    collection_title_p = db["title_principals"]
+
+    # Get all the info from the database
+    names = list(collection_names.find({"nconst": nconst}))
+    title_tconsts = list(collection_title_b.find({"tconst": tconst}))
+
+    while (len(names) == 0) or (len(title_tconsts) == 0):
+        if len(names) == 0:
+            nconst = input("Invalid Crew Member ID! Try Again: ").strip()
+            names = list(collection_names.find({"nconst": nconst}))
+        if len(title_tconsts) == 0:
+            tconst = input("Invalid Title ID! Try Again: ").strip()
+            title_tconsts = list(collection_title_b.find({"tconst": tconst}))
+
+    title_p_tconsts = list(collection_title_p.find({"tconst": tconst}))
+
+    if len(title_p_tconsts) == 0:
+        order = 1
+    else:
+        order_query = collection_title_p.find({"tconst": tconst}).sort("ordering", -1).limit(1)
+        order = list(order_query)[0]["ordering"]
+        order = order + 1
+
+    job = input("Add a Job to the crew member or click enter to skip): ")
+    if job == "":
+        job = None
+    character = input("Enter the characters separated by a space or click enter to skip: ")
+    if character == "":
+        character = None
+    else:
+        character = character.split()
+
+    doc = {"tconst": tconst, "ordering": order, "nconst": nconst, "category": category, "job": job, "characters": character}
+    collection_title_p.insert_one(doc)
+    print("Insertion Successful!")
 
 
 def display_menu():
