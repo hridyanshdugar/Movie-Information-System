@@ -63,18 +63,10 @@ def search_titles():
 
         title_choice = int(input("Enter the choice: "))
 
+        print("Title Selected: " + str(docs[title_choice-1]["primaryTitle"]))
+
+        # Query to find all the cast info
         query = [{
-            "$lookup": {
-                "from": "title_ratings",
-                "localField": "tconst",
-                "foreignField": "tconst",
-                "as": "ratings"
-            }
-        },{
-            "$replaceRoot": {"newRoot": {"$mergeObjects": [{"$arrayElemAt": ["$ratings", 0]}, "$$ROOT"]}}
-        },{
-            "$project": {"ratings": 0}
-        },{
             "$match":{
                 "tconst":docs[title_choice-1]["tconst"]
             }
@@ -93,6 +85,11 @@ def search_titles():
 
         # Query to find the rating and votes
         guery_rating = {"tconst":docs[title_choice-1]["tconst"]}
+
+        rating_doc = collection_title_r.find_one(guery_rating)
+
+        print("Rating: ", rating_doc["averageRating"])
+        print("Votes : ", rating_doc["numVotes"])
 
         cur = collection_title_p.aggregate(query)
         for doc in cur:
@@ -141,6 +138,8 @@ def search_genres():
     collection_title_b.create_index([("genres", 1)])
     collection_title_b.create_index([("tconst", 1)])
     collection_title_r.create_index([("tconst", 1)])
+    collection_title_r.create_index([("numVotes",1)])
+    collection_title_r.create_index([("averageRating",1)])
 
     print("Querying...")
     cur = collection_title_b.aggregate(query)
