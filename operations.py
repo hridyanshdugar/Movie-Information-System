@@ -92,8 +92,13 @@ def search_titles():
         print("Votes : ", rating_doc["numVotes"])
 
         cur = collection_title_p.aggregate(query)
-        for doc in cur:
-            print(doc)
+        docs = list(cur)
+
+        if len(docs) != 0:
+            for doc in docs:
+                print(doc)
+        else:
+            print("No Cast members found! Try Again.")
     else:
         print("No matches found! Try again")
 
